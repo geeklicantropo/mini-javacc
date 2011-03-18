@@ -1,0 +1,270 @@
+PARSER_BEGIN(MiniJavaParser)
+
+public class MiniJavaParser {
+
+  public static void main(String args[]) {
+    MiniJavaParser parser;
+    if (args.length == 0) {
+      System.out.println("MiniJava Parser Version 0.1:  Reading from standard input . . .");
+      parser = new MiniJavaParser(System.in);
+    } else if (args.length == 1) {
+      System.out.println("MiniJava Parser Version 0.1:  Reading from file " + args[0] + " . . .");
+      try {
+        parser = new MiniJavaParser(new java.io.FileInputStream(args[0]));
+      } catch (java.io.FileNotFoundException e) {
+        System.out.println("MiniJava Parser Version 0.1:  File " + args[0] + " not found.");
+        return;
+      }
+    } else {
+      System.out.println("MiniJava Parser Version 0.1:  Usage is one of:");
+      System.out.println("         java MiniJavaParser < inputfile");
+      System.out.println("OR");
+      System.out.println("         java MiniJavaParser inputfile");
+      return;
+    }
+    try {
+      parser.program();
+      System.out.println("MiniJava Parser Version 0.1:  MiniJava file parsed successfully.");
+    } catch (ParseException e) {
+      System.out.println("MiniJava Parser Version 0.1:  Encountered errors during parse.");
+    }
+  }
+
+}
+
+PARSER_END(MiniJavaParser)
+
+
+SKIP :
+{
+  < " " >
+| < "\t" >
+| < "\n" >
+| < "\r" >
+
+}
+
+TOKEN :
+{
+  < ABSTRACT: "abstract" >
+| < BOOLEAN: "boolean" >
+| < BRACEL: "{" >
+| < BRACER: "}" >
+| < BRACKETL: "[" >
+| < BRACKETR: "]" >
+| < BREAK: "break" >
+| < BYTE: "byte" >
+| < CASE: "case" >
+| < CATCH: "catch" >
+| < CHAR: "char" >
+| < CLASS: "class" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < _DEFAULT: "default" >
+| < DO: "do" >
+| < DOUBLE: "double" >
+| < ELSE: "else" >
+| < EXCL: "!" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < FINAL: "final" >
+| < FINALLY: "finally" >
+| < FLOAT: "float" >
+| < FOR: "for" >
+| < GOTO: "goto" >
+| < IF: "if" >
+| < IMPLEMENTS: "implements" >
+| < IMPORT: "import" >
+| < INSTANCEOF: "instanceof" >
+| < INT: "int" >
+| < INTERFACE: "interface" >
+| < LENGTH: "length" >
+| < LONG: "long" >
+| < MAIN: "main" >
+| < NATIVE: "native" >
+| < NEW: "new" >
+| < NULL: "null" >
+| < PACKAGE: "package">
+| < PARENL: "(" >
+| < PARENR: ")" >
+| < PRIVATE: "private" >
+| < PROTECTED: "protected" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < SEMICOLON: ";" >
+| < SHORT: "short" >
+| < STATIC: "static" >
+| < STRING: "String" >
+| < SUPER: "super" >
+| < SWITCH: "switch" >
+| < SYNCHRONIZED: "synchronized" >
+| < THIS: "this" >
+| < THROW: "throw" >
+| < THROWS: "throws" >
+| < TRANSIENT: "transient" >
+| < TRUE: "true" >
+| < TRY: "try" >
+| < VOID: "void" >
+| < VOLATILE: "volatile" >
+| < WHILE: "while" >
+}
+
+TOKEN:
+{
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN :
+{
+  < ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+|
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+}
+
+TOKEN :
+{
+  < OPERATOR :
+   "=" 
+|  ">" 
+|  "<" 
+|  "!" 
+|  "~" 
+|  "?" 
+|  ":" 
+|  "==" 
+|  "<=" 
+|  ">=" 
+|  "!=" 
+|  "||" 
+|  "&&"
+|  "++" 
+|  "--" 
+|  "+" 
+|  "-" 
+|  "*" 
+|  "/" 
+|  "&" 
+|  "|" 
+|  "^" 
+|  "%" 
+|  "<<" 
+|  ">>" 
+|  "+=" 
+|  "-=" 
+|  "*=" 
+|  "/=" 
+|  "&=" 
+|  "|=" 
+|  "^=" 
+|  "%=" 
+|  "<<="
+|  ">>="
+>
+}
+
+void program() :
+{}
+{
+  main_class() ( class_decl() )*
+}
+
+void main_class() :
+{}
+{
+  "class" <ID> "{" "public" "static" "void" "main" "(" "String" "[]" <ID> ")" "{" statement() "}" "}"
+}
+
+void class_decl() :
+{}
+{
+  "class" <ID> (  "{" ( var_decl() )* ( method_decl() )* "}"   |   "extends" <ID> "{" ( var_decl() )* ( method_decl() )* "}"  ) 
+}
+
+void var_decl() :
+{}
+{
+  type() <ID> ";"
+}
+
+void method_decl() :
+{}
+{
+  "public" type() <ID> "(" formal_list() ")"
+    "{" ( var_decl() )* ( statement() )* "return" exp() ";" "}"
+}
+
+void formal_list() :
+{}
+{
+  ( type() <ID> ( formal_rest() )* )?
+
+}
+
+void formal_rest() :
+{}
+{
+  "," type() <ID>
+}
+
+void type() :
+{}
+{
+  "int" ( "[]" )?
+|
+  "boolean"
+|  
+  <ID>
+}
+
+void statement() :
+{}
+{
+  "{" ( statement() )* "}"
+|
+  "if" "(" exp() ")" statement() "else" statement()
+|
+  "while" "(" exp() ")" statement()
+|
+  "System.out.println" "(" exp() ")" ";"
+|
+  <ID>  ( "=" exp() ";"   |   "[" exp() "]" "=" exp() ";" ) 
+}
+
+void exp() :
+{}
+{  
+  <ID> 
+}
+
+void exp_list() :
+{}
+{
+  ( exp() ( exp_rest() )* )?
+}
+
+void exp_rest() :
+{}
+{
+  "," exp()
+}

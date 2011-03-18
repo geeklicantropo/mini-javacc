@@ -1,50 +1,0 @@
-/**
- * JavaCC template file created by SF JavaCC plugin 1.5.17+ wizard for JavaCC 1.5.0+
- */options{  JDK_VERSION = "1.5";  static = true;}PARSER_BEGIN(eg1)
-public class eg1{  public static void main(String args []) throws ParseException  {    eg1 parser = new eg1(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {        switch (eg1.one_line())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        eg1.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(eg1)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* ALL */{
-< AND : "&&" >  
-| < ASSIGN: "=">
-| < BOOLEAN: "boolean" >
-| < BRACE_L: "{" >
-| < BRACE_R: "}" >
-| < LBRACKET: "[" >
-| < RBRACKET: "]" >
-| < CLASS: "class" >
-| < COMMA: "," >
-| < DIVIDE: "/" >
-| < DOT: "." >
-| < ELSE: "else" >
-| < EXTENDS: "extends" > 
-| < FALSE: "false" >
-| < ID: <LET> ( <LET> | <DIGIT>)* >  
-| < IF: "if" >
-| < INT: "int" >
-| < LENGTH: "length" >
-| < LESSTHAN : "<" >
-| < MAIN: "main" >
-| < MINUS : "-" >
-| < NEW: "new" >
-| < NOT: "!" >
-| < NUM: (<DIGIT>)+ >
-| < LPAREN: "(" >
-| < RPAREN: ")" >
-| < PLUS : "+" >
-| < PUBLIC: "public" >
-| < REAL: ( (<DIGIT>)+ "." (<DIGIT>)* ) | 
-          ( (<DIGIT>)* "." (<DIGIT>)+ )>
-| < RETURN: "return" >
-| < SEMICOLON: ";" >
-| < SYSTEM: "System.out.println" >
-| < STATIC: "static" >
-| < STRING: "String" >
-| < THIS: "this" >
-| < TIMES : "*" >
-| < TRUE: "true" >
-| < VOID: "void" > 
-| < WHILE: "while" >
-| < #DIGIT: ["0"-"9"] >
-| < #LETMIN: ["a"-"z"] >
-| < #LETMAI: ["A"-"Z"] >
-| < #LET: <LETMIN >|<LETMAI > >
-}
-int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < TIMES >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{"(" sum() ")"}
