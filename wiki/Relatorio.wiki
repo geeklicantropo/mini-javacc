@@ -4,6 +4,6 @@ O Relatório descreverá todas as nossas atividades realizadas.
 
 <UL>
     <LI><a href="http://code.google.com/p/mini-javacc/wiki/Introducao">Introdução</a></LI>
-    <LI></LI>
+    <LI><a href="http://code.google.com/p/mini-javacc/wiki/AnaliseLexica">Análise Léxica</a></LI>
     <LI></LI>
 </UL>
