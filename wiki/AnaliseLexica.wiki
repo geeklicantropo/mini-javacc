@@ -1,4 +1,4 @@
-= *Análise Lexica* =
+= *Análise Léxica* =
 
 A principal função do Analisador Léxico é de fragmentar o programa fonte em componentes básicos, chamados de átomos ou tokens. Do ponto de vista de implementação do compilador, o analisador léxico atua como uma interface entre o analisador sintático e o texto de entrada, convertendo a seqüência de caracteres que formam o programa fonte em uma seqüência de tokens que o analisador sintático consumirá.
 
