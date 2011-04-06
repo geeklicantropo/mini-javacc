@@ -7,11 +7,11 @@ O resultado de seu processamento produz uma estrutura conhecidamente denominada 
 
 Nesta etapa de desenvolvimento, com o uso do JavaCC, temos gerados todo o Scanner e Parser de nosso compilador, tendo sido gerados os arquivos abaixo:
 
-*MiniJavaParser.java
-*MiniJavaParserConstants.java
-*MiniJavaParserTokenManager.java
-*ParserException.java
-*SimpleCharStream.java
-*Token.java
-*TokenMgrError.java
+*MiniJavaParser.java<br>
+*MiniJavaParserConstants.java<br>
+*MiniJavaParserTokenManager.java<br>
+*ParserException.java<br>
+*SimpleCharStream.java<br>
+*Token.java<br>
+*TokenMgrError.java<br>
 *MiniJava.jj
