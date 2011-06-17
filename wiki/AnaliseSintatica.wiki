@@ -5,7 +5,7 @@ A análise sintática, ou parsing, é o núcleo principal do front-end de um com
 compilador através do código fonte em compilação. É ele quem ativa o léxico para que este lhe retorne os tokens, citados acima, e também ativa a análise semântica e a geração de código.
 O resultado de seu processamento produz uma estrutura conhecidamente denominada AST – Abstract Syntax Tree. Esta árvore não precisa necessariamente ser gerada "fisicamente".
 
-Nesta etapa de desenvolvimento, com o uso do JavaCC, temos gerados todo o Scanner e Parser de nosso compilador, tendo sido gerados os arquivos abaixo:
+Nesta etapa de desenvolvimento, com o uso do JavaCC, temos gerado todos os Scanner e Parser de nosso compilador, tendo sido gerados os arquivos abaixo:
 
 MiniJavaParser.java<br>
 MiniJavaParserConstants.java<br>
