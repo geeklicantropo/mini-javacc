@@ -1,0 +1,144 @@
+Digite o caminho para o arquivo com o codigo fonte: teste/fatorial.txt
+
+
+
+
+ ANALISE LEXICA E SINTATICA
+----------------------------
+
+
+ Nenhum erro encontrado
+
+
+
+
+ ARVORE SINTATICA ABSTRATA
+---------------------------
+
+Program
+  MainClass
+    Identifier(Factorial)
+    Identifier(a)
+    Print
+      CALL
+        NewObject
+          Identifier(Fac)
+        Identifier(ComputeFac)
+        IntegerLiteral(10)
+  ClassDeclSimple
+    Identifier(Fac)
+    MethodDecl
+      IntegerType
+      Identifier(ComputeFac)
+      Formal
+        IntegerType
+        Identifier(num)
+      VarDecl
+        IntegerType
+        Identifier(num_aux)
+      If
+        LessThan
+          IdentifierExp(num)
+          IntegerLiteral(1)
+        Assign
+          Identifier(num_aux)
+          IntegerLiteral(1)
+        Assign
+          Identifier(num_aux)
+          Times
+            IdentifierExp(num)
+            CALL
+              This
+              Identifier(ComputeFac)
+              Minus
+                IdentifierExp(num)
+                IntegerLiteral(1)
+      IdentifierExp(num_aux)
+
+
+
+ VERIFICACAO DE TIPOS
+------------------------
+
+
+ Nenhum erro encontrado
+
+
+
+
+ REPRESENTACAO INTERMEDIARIA
+----------------------------
+
+#
+
+EXP(
+ CALL(
+  NAME _printExp,
+   CALL(
+    NAME Fac$ComputeFac,
+     CONST 10)))
+#
+
+SEQ(
+ EXP(
+  CONST 0),
+ EXP(
+  ESEQ(
+   SEQ(
+    CJUMP(GT,
+     BINOP(MINUS,
+      CONST 1,
+      TEMP t0),
+     CONST 0,
+     L0,L1),
+    SEQ(
+     SEQ(
+      LABEL L0,
+      EXP(
+       ESEQ(
+        MOVE(
+         TEMP t1,
+         CONST 1),
+        CONST 0))),
+     SEQ(
+      LABEL L1,
+      EXP(
+       ESEQ(
+        MOVE(
+         TEMP t1,
+         BINOP(MUL,
+          TEMP t0,
+          CALL(
+           NAME Fac$ComputeFac,
+            BINOP(MINUS,
+             TEMP t0,
+             CONST 1)))),
+        CONST 0))))),
+   CONST 0)))
+
+
+
+
+ EMISSAO DE CODIGO ASSEMBLY
+----------------------------
+
+L3:
+MOVEA t5 <- null
+goto L2
+L2:
+L5:
+ADDI t10 <- t4 + 1
+SUB t9 <- t10 - t0
+SUBI t8 <- t9-0
+goto L1
+L1:
+MOVEA t7 <- t0
+MOVEA t6 <- null
+MUL t11 <- t7 * t6
+MOVEA t1 <- t11
+goto L4
+L0:
+ADDI t12 <- t4 + 1
+MOVEA t1 <- t12
+goto L1
+L4:

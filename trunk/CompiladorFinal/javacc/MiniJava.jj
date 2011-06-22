@@ -1,0 +1,361 @@
+PARSER_BEGIN(MiniJavaParser)
+
+package javacc;
+
+import syntaxtree.*;
+import visitor.*;
+
+public class MiniJavaParser 
+{}
+
+PARSER_END(MiniJavaParser)
+
+
+SKIP :
+{
+  < " " >
+| < "\t" >
+| < "\n" >
+| < "\r" >
+
+}
+
+TOKEN : 
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < LESSTHAN : "<" >
+| < AND : "&&" >
+}
+
+TOKEN :
+{
+  < BOOLEAN: "boolean" >  
+| < CLASS: "class" >
+| < ELSE: "else" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < IF: "if" >
+| < INT: "int" >
+| < INT_ARRAY : "int" "[]" >
+| < LENGTH: "length" >
+| < MAIN: "public static void main" >
+| < NEW: "new" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < STATIC: "static" >
+| < STRING: "String" >
+| < THIS: "this" >
+| < TRUE: "true" >
+| < VOID: "void" >
+| < WHILE: "while" >
+
+}
+
+TOKEN:
+{
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN :
+{
+  < ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+|
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+}
+
+
+
+Program program() :
+{ MainClass m; ClassDeclList cl; }
+{ 
+  m = mainClass() cl = classDeclL()
+	
+  { return new Program(m, cl); }   
+}
+
+
+MainClass mainClass() :
+{Token a; Token b; Statement s;}
+{
+  "class" a = <ID>
+  "{" < MAIN > "(" "String" "[]" b = <ID> ")" 
+  "{" s=statement() "}" "}"
+
+  { return new MainClass(new Identifier(a.toString()), new Identifier(b.toString()), s); }
+}
+
+
+ClassDeclList classDeclL():
+{ClassDecl cd; ClassDeclList cdl;}
+{
+  cd = classDecl()
+  cdl = classDeclL()
+  { cdl.addElement(cd); return cdl; }
+| 
+  { return new ClassDeclList(); }
+}
+
+
+
+ClassDecl classDecl() :
+{ Token a; Token b; VarDeclList vl; MethodDeclList ml; }
+{
+  "class" a = <ID> 
+   (  
+      "{" vl=varDeclL() ml=methodDeclL() "}"  
+      {return new ClassDeclSimple(new Identifier(a.toString()), vl, ml ); }
+   |   
+      "extends" b=<ID> "{" vl=varDeclL() ml=methodDeclL() "}"
+      {return new ClassDeclExtends(new Identifier(a.toString()), new Identifier(b.toString()), vl,ml ); }  
+   ) 
+}
+
+
+
+VarDecl varDecl() :
+{ Type t; Token a;}
+{
+  t = type() a = <ID> ";"
+
+  {return new VarDecl(t,new Identifier( a.toString() ) ); }   
+}
+
+VarDeclList varDeclL():
+{VarDecl vd; VarDeclList vdl;}
+{
+  vd = varDecl()
+  vdl = varDeclL()
+	{vdl.addElement(vd); return vdl; }
+|
+  {return new VarDeclList(); }    
+}
+
+
+MethodDecl methodDecl() :
+{Type t; Token a; FormalList fl; VarDeclList vl; StatementList sl; Exp e; }
+{
+  "public" t=type() a=<ID> "(" fl=formalL() ")"
+  "{" vl=varDeclL() sl=statementL() "return" e=exp() ";" "}"
+
+  { return new MethodDecl(t,new Identifier(a.toString()),fl,vl,sl,e); }
+}
+
+
+MethodDeclList methodDeclL():
+{ MethodDecl md; MethodDeclList mdl; }
+{
+  md = methodDecl() mdl= methodDeclL()
+	{mdl.addElement(md); return mdl;}
+|
+  {	return new MethodDeclList(); }    
+}
+
+
+
+FormalList formalL():
+{Formal f; FormalList fl; }
+{ 
+  f=formal()
+  fl=formalL2()
+  {fl.addElement(f); return fl; }
+|
+  {return new FormalList();}
+}
+
+FormalList formalL2():
+{Formal f; FormalList fl; }
+{ 
+  f=formalR()
+  fl=formalL2()
+  {fl.addElement(f);return fl;}
+|
+  {return new FormalList();}
+}
+
+Formal formal() :
+{Type t; Token a;}
+{
+  t=type() a=<ID>
+
+  {return new Formal(t,new Identifier(a.toString()));}
+}
+
+Formal formalR() :
+{Type t; Token a;}
+{
+  "," t=type() a=<ID>
+
+  {return new Formal(t,new Identifier(a.toString()));}
+}
+
+
+Type type():
+{Token t;}
+{
+  <INT_ARRAY>  { return new IntArrayType();	}
+| <BOOLEAN>		 { return new BooleanType();  }
+| t = <ID>     { return new IdentifierType(t.toString());	 }
+| <INT>        { return new IntegerType();	}
+}
+
+
+StatementList statementL():
+{Statement s; StatementList sl;}
+{
+  s = statement()
+  sl = statementL()
+  {sl.addElement(s); return sl;}
+| 
+  {	return new StatementList();}    
+}
+
+Statement statement() :
+{Statement s; Statement s2; StatementList sl; Exp e; Token i;}
+{
+  "{" sl=statementL() "}"
+  {return new Block(sl);}
+|
+  "if" "(" e=exp() ")" s=statement() "else" s2=statement()
+  {return new If(e, s, s2);}
+|
+  "while" "(" e=exp() ")" s=statement()
+  {return new While(e, s);}
+|
+  "System.out.println" "(" e=exp() ")" ";"
+  {return new Print(e);} 
+| 
+  i= <ID> s = statementPrime(new Identifier(i.toString()))
+  { return s; }  
+}
+
+
+
+Statement statementPrime(Identifier i) :
+{Exp e1; Exp e2;}
+{
+  "=" e1 = exp() ";"
+  { return new Assign(i, e1); }
+|
+  "[" e1=exp() "]" "=" e2=exp() ";"
+  { return new ArrayAssign(i,e1,e2); }  
+}
+
+
+
+
+
+Exp exp() :
+{Exp e1; Exp e2;}
+{
+  e1 = TP() e2=TPrime(e1)
+  {return e2;}  
+}
+
+Exp TP() :
+{Token s; Exp e; Token t;}
+{ 
+  s=<INTEGER_LITERAL> {return new IntegerLiteral(Integer.parseInt(s.toString())); }  
+| <TRUE> {return new True();}
+| <FALSE> {return new False();}
+| t = <ID> {return new IdentifierExp(t.toString());}
+| "this" {return new This();}
+| "new" e=A() {return e; }
+| "!" e=exp() {return new Not(e);}
+| "(" e=exp() ")" { return e; } 
+
+}
+
+Exp A() : 
+{Exp e;Token t;}
+{
+  "int" "[" e=exp() "]"  { return new NewArray(e); }
+| t = <ID> "(" ")"  { return new NewObject(new Identifier(t.toString()));}
+}
+
+Exp TPrime(Exp e1) :
+{Exp e2;}
+{ 
+  "+"  e2=exp() {return new Plus(e1,e2);}
+| "-"  e2=exp() {return new Minus(e1,e2);}
+| "*"  e2=exp() {return new Times(e1,e2);}
+| "<"  e2=exp() {return new LessThan(e1,e2);}
+| "&&" e2=exp() {return new And(e1,e2);}
+| "["  e2=exp() "]" {return new ArrayLookup(e1,e2);}
+| "."  e2=E(e1) { return e2; }
+| { return e1; }
+
+}
+
+Exp E(Exp exp) : 
+{ExpList el; Token t;}
+{  
+  "length" {return new ArrayLength(exp);}
+| 
+  t = <ID> "(" el=expL() ")" {return new Call(exp,new Identifier(t.toString()),el);} 
+}
+
+
+ExpList expL() :
+{Exp e; ExpList el;}
+{
+  e=exp() 
+  el=expL2()
+  {el.addElement(e); return el;}
+|
+  {return new ExpList();} 
+}
+
+ExpList expL2() :
+{Exp e; ExpList el;}
+{
+  e=expR() 
+  el=expL2()
+  {el.addElement(e); return el;}
+|
+  {return new ExpList();} 
+}
+
+
+Exp expR() :
+{Exp e;}
+{
+  "," e=exp()
+  {return e;}
+}
+
+
+
+
+TOKEN :
+{
+  < OPERATOR :
+   "="
+|  "+" 
+|  "-" 
+|  "*" 
+|  "/" 
+  >
+}
